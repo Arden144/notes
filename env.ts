@@ -1,4 +1,4 @@
-import { loadEnvironment, snowflakeToBigint } from "./deps.ts";
+import { snowflakeToBigint } from "./deps.ts";
 
 export interface Config {
 	port: number;
@@ -8,12 +8,10 @@ export interface Config {
 	channel: bigint;
 }
 
-const env = loadEnvironment();
-
 export const config = <Config> {
-	port: parseInt(env.PORT, 10),
-	token: env.TOKEN,
-	api: env.API,
-	id: snowflakeToBigint(env.ID),
-	channel: snowflakeToBigint(env.CHANNEL),
+	port: parseInt(Deno.env.get("PORT")!, 10),
+	token: Deno.env.get("TOKEN")!,
+	api: Deno.env.get("API")!,
+	id: snowflakeToBigint(Deno.env.get("ID")!),
+	channel: snowflakeToBigint(Deno.env.get("CHANNEL")!),
 };
