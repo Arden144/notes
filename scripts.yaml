@@ -1,0 +1,9 @@
+allow:
+  - net
+  - read
+  - env
+
+importMap: import_map.json
+
+scripts:
+  start: mod.ts
