@@ -1,5 +1,5 @@
-import { Application, createBot, Router, sendMessage, startBot } from "@deps";
-import { config } from "/env.ts";
+import { Application, createBot, Router, sendMessage, startBot } from "./deps.ts";
+import { config } from "./env.ts";
 
 const server = new Application();
 const router = new Router();
@@ -42,8 +42,8 @@ await Promise.allSettled([
 	startBot(bot),
 	server.listen({
 		port: config.port,
-		secure: true,
-		certFile: "./***REMOVED***.pem",
-		keyFile: "./***REMOVED***.key",
+		secure: false,
+		// certFile: "./***REMOVED***.pem",
+		// keyFile: "./***REMOVED***.key",
 	}),
 ]);

@@ -1,4 +1,4 @@
-import { loadEnvironment, snowflakeToBigint } from "@deps";
+import { loadEnvironment, snowflakeToBigint } from "./deps.ts";
 
 export interface Config {
 	port: number;
