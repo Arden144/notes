@@ -10,7 +10,7 @@ use tokio::signal;
 const TOKEN: &str = "***REMOVED***";
 const CERT: &str = "***REMOVED***.pem";
 const KEY: &str = "***REMOVED***.key";
-const ADDR: &str = "127.0.0.1:443";
+const ADDR: &str = "0.0.0.0:443";
 const AUTH: &str = "Basic ***REMOVED***";
 const CHANNEL: serenity::model::id::ChannelId = ChannelId(***REMOVED***u64);
 
