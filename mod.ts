@@ -38,12 +38,12 @@ router.post("/notes", async ({ request, response }) => {
 server.use(router.routes());
 server.use(router.allowedMethods());
 
-await Promise.allSettled([
+await Promise.any([
 	startBot(bot),
 	server.listen({
 		port: config.port,
-		secure: false,
-		// certFile: "./***REMOVED***.pem",
-		// keyFile: "./***REMOVED***.key",
+		secure: true,
+		certFile: "./***REMOVED***.pem",
+		keyFile: "./***REMOVED***.key",
 	}),
 ]);
