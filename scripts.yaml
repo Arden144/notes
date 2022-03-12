@@ -1,7 +1,0 @@
-allow:
-  - net
-  - read
-  - env
-
-scripts:
-  start: mod.ts
