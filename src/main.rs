@@ -1,6 +1,6 @@
-use std::{error::Error, fs::File, io::BufReader};
+use std::{error::Error, fs::File, io::BufReader, sync::Arc};
 
-use actix_web::{http::header, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, put, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use rustls::{Certificate, PrivateKey, ServerConfig};
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde::Deserialize;
@@ -33,12 +33,12 @@ impl EventHandler for Handler {
 
 fn valid_auth_token(req: HttpRequest) -> bool {
     req.headers()
-        .get(header::AUTHORIZATION)
+        .get(http::header::AUTHORIZATION)
         .filter(|&value| value == AUTH)
         .is_some()
 }
 
-#[post("/notes")]
+#[put("/note")]
 async fn add_note(
     note: web::Json<Note>,
     bot_http: web::Data<Http>,
@@ -49,42 +49,51 @@ async fn add_note(
     }
     match CHANNEL.say(bot_http.get_ref(), &note.message).await {
         Ok(_) => HttpResponse::Ok(),
-        Err(_) => HttpResponse::InternalServerError(),
+        Err(err) => {
+            eprintln!("Failed to send message: {:?}", err);
+            HttpResponse::InternalServerError()
+        }
     }
 }
 
 fn get_tls_config() -> Result<ServerConfig, Box<dyn Error>> {
     let mut cert_file = BufReader::new(File::open(CERT)?);
+    let mut key_file = BufReader::new(File::open(KEY)?);
+
     let cert_chain: Vec<Certificate> = certs(&mut cert_file)?
         .into_iter()
         .map(Certificate)
         .collect();
-    if cert_chain.len() == 0 {
-        panic!("Could not get certificate.");
-    }
-    let mut key_file = BufReader::new(File::open(KEY)?);
+    assert!(!cert_chain.is_empty(), "Could not get certificate.");
+
     let key_der = pkcs8_private_keys(&mut key_file)?
         .into_iter()
         .map(PrivateKey)
         .next()
         .expect("Could not get private key.");
-    let tls_config = ServerConfig::builder()
+
+    Ok(ServerConfig::builder()
         .with_safe_defaults()
         .with_no_client_auth()
-        .with_single_cert(cert_chain, key_der)?;
-    Ok(tls_config)
+        .with_single_cert(cert_chain, key_der)?)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut bot = Client::builder(TOKEN).event_handler(Handler).await?;
-    let bot_manager = bot.shard_manager.clone();
-    let bot_http = web::Data::from(bot.cache_and_http.http.clone());
+    let bot_manager = Arc::clone(&bot.shard_manager);
+    let bot_http = Arc::clone(&bot.cache_and_http.http);
 
-    let svr = HttpServer::new(move || App::new().app_data(bot_http.clone()).service(add_note))
-        .disable_signals()
-        .bind_rustls(ADDR, get_tls_config()?)?
-        .run();
+    let svr = HttpServer::new(move || {
+        let v1 = web::scope("/api/v1").service(add_note);
+
+        App::new()
+            .app_data(web::Data::from(Arc::clone(&bot_http)))
+            .service(v1)
+    })
+    .disable_signals()
+    .bind_rustls(ADDR, get_tls_config()?)?
+    .run();
     let svr_handle = svr.handle();
 
     println!("[Notes] Starting");

@@ -1,24 +1,26 @@
 [package]
 name = "notes"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [profile.dev]
 incremental = true
 
 [profile.release]
-lto = true
 panic = "abort"
 strip = true
 
-[dependencies]
-actix-web = { version = "4", features = ["rustls"] }
-serde = "1"
-tokio = { version = "1", features = ["full"] }
-rustls = "0.20"
-rustls-pemfile = "0.3"
+[dependencies.actix-web]
+features = ["rustls"]
+version = "4.0.1"
 
 [dependencies.serenity]
 default-features = false
-features = ["builder", "client", "gateway", "http", "model", "rustls_backend"]
-version = "0.10"
+features = ["client", "gateway", "model", "rustls_backend"]
+version = "0.10.10"
+
+[dependencies]
+serde = "1.0.136"
+tokio = { version = "1.17.0", features = ["full"] }
+rustls = "0.20.4"
+rustls-pemfile = "0.3.0"
