@@ -4,7 +4,6 @@ mod tls;
 mod types;
 mod v1;
 
-use config::*;
 use tls::*;
 
 use std::{error::Error, sync::Arc};
@@ -27,7 +26,9 @@ impl EventHandler for Handler {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut bot = Client::builder(TOKEN).event_handler(Handler).await?;
+    let mut bot = Client::builder(config::TOKEN)
+        .event_handler(Handler)
+        .await?;
     let bot_manager = Arc::clone(&bot.shard_manager);
     let bot_http = Arc::clone(&bot.cache_and_http.http);
 
@@ -37,7 +38,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .service(v1::get_service())
     })
     .disable_signals()
-    .bind_rustls(ADDR, get_tls_config()?)?
+    .bind_rustls(config::ADDR, get_tls_config()?)?
     .run();
     let svr_handle = svr.handle();
 

@@ -1,4 +1,4 @@
-use crate::config::*;
+use crate::config;
 
 use std::{error::Error, fs::File, io::BufReader};
 
@@ -6,8 +6,8 @@ use rustls::{Certificate, PrivateKey, ServerConfig};
 use rustls_pemfile::{certs, pkcs8_private_keys};
 
 pub fn get_tls_config() -> Result<ServerConfig, Box<dyn Error>> {
-    let mut cert_file = BufReader::new(File::open(CERT)?);
-    let mut key_file = BufReader::new(File::open(KEY)?);
+    let mut cert_file = BufReader::new(File::open(config::CERT)?);
+    let mut key_file = BufReader::new(File::open(config::KEY)?);
 
     let cert_chain: Vec<Certificate> = certs(&mut cert_file)?
         .into_iter()
