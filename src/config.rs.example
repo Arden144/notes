@@ -1,0 +1,8 @@
+use serenity::model::id::ChannelId;
+
+pub const TOKEN: &str = "discord_token";
+pub const CERT: &str = "example.com.pem";
+pub const KEY: &str = "example.com.key";
+pub const ADDR: &str = "0.0.0.0:443";
+pub const AUTH: &str = "Basic 123456789-abcdefg";
+pub const CHANNEL: ChannelId = ChannelId(543212345u64);
