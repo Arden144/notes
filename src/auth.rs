@@ -1,8 +1,8 @@
 use crate::config;
-use actix_web::{http, HttpRequest};
+use actix_web::http::{self, header::HeaderMap};
 
-pub fn valid_auth_token(req: HttpRequest) -> bool {
-    req.headers()
+pub fn valid_auth_token(headers: &HeaderMap) -> bool {
+    headers
         .get(http::header::AUTHORIZATION)
         .filter(|&value| value == config::AUTH)
         .is_some()
